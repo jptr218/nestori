@@ -25,5 +25,5 @@ string convertDomain(string v);
 void strToIp(const char* s, uint8_t* ip);
 vector<string> getDevices();
 
-bool send_question(pcap_t* handle, string target, uint8_t* gateway);
-bool send_answer(pcap_t* handle, string target, string s_targetns, uint8_t* targetns, uint8_t* ndest, uint8_t* gateway, uint16_t tid);
+bool send_question(pcap_t* handle, uint8_t* dnssvr, string target, uint8_t* gateway);
+bool send_answer(pcap_t* handle, uint8_t* dnssvr, string target, string s_targetns, uint8_t* targetns, uint8_t* ndest, uint8_t* gateway, uint16_t tid);
